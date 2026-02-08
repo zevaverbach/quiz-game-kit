@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizHive - Free Trivia Games</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://t.averba.ch/snippet.js" defer></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #0f0f1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 60px 20px 40px;
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #d4af37, #f4e4a6, #d4af37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: #888;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .quizzes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px 24px 60px;
+        }
+
+        .quiz-card {
+            background: #1a1a2e;
+            border-radius: 16px;
+            padding: 32px 28px;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid #2a2a3e;
+            transition: transform 0.2s, border-color 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .quiz-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .quiz-icon {
+            font-size: 2.4rem;
+            margin-bottom: 16px;
+        }
+
+        .quiz-card h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .quiz-card .description {
+            font-size: 0.95rem;
+            color: #888;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            flex: 1;
+        }
+
+        .quiz-card .meta {
+            display: flex;
+            gap: 16px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .quiz-card .meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .quiz-card.greek { --accent: #d4af37; }
+        .quiz-card.beyblade { --accent: #e63946; }
+        .quiz-card.sysdesign { --accent: #00bcd4; }
+
+        .quiz-card .play-btn {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 10px 20px;
+            background: var(--accent);
+            color: #0f0f1a;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: center;
+            transition: opacity 0.2s;
+        }
+
+        .quiz-card:hover .play-btn { opacity: 0.9; }
+
+        footer {
+            text-align: center;
+            padding: 24px;
+            color: #444;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 640px) {
+            .hero { padding: 40px 20px 24px; }
+            .hero h1 { font-size: 2rem; }
+            .quizzes { padding: 16px 16px 40px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>QuizHive</h1>
+        <p>Free trivia games on topics you love. Pick a quiz and test your knowledge.</p>
+    </div>
+
+    <div class="quizzes">
+        <a href="/greek-myths/" class="quiz-card greek">
+            <div class="quiz-icon">🏛️</div>
+            <h2>Greek Mythology</h2>
+            <p class="description">Journey through the tales of Olympian gods, legendary heroes, and ancient myths.</p>
+            <div class="meta">
+                <span>722 questions</span>
+            </div>
+            <div class="play-btn">Play Now</div>
+        </a>
+
+        <a href="/system-design/" class="quiz-card sysdesign">
+            <div class="quiz-icon">🏗️</div>
+            <h2>System Design</h2>
+            <p class="description">Master load balancers, databases, caching, and the art of building scalable systems.</p>
+            <div class="meta">
+                <span>200 questions</span>
+            </div>
+            <div class="play-btn">Play Now</div>
+        </a>
+
+        <a href="/beyblade/" class="quiz-card beyblade">
+            <div class="quiz-icon">🌀</div>
+            <h2>Beyblade X</h2>
+            <p class="description">How well do you know the world of Beyblade X? Test your blader knowledge.</p>
+            <div class="meta">
+                <span>100 questions</span>
+            </div>
+            <div class="play-btn">Play Now</div>
+        </a>
+    </div>
+
+    <footer>QuizHive</footer>
+</body>
+</html>

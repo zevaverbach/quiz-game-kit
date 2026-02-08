@@ -127,6 +127,18 @@
         </div>
     </div>
 
+    <!-- Result Modal (mobile bottom sheet) -->
+    <div class="result-modal-overlay" id="resultModalOverlay">
+        <div class="result-modal">
+            <div id="modalContent"></div>
+            <div class="modal-nav">
+                <button class="btn btn-secondary btn-nav" id="modalBackBtn" onclick="goBack()" style="display: none;">← Back</button>
+                <button class="btn btn-primary btn-nav" id="modalNextBtn" onclick="nextQuestion()" style="display: none;">Next Question →</button>
+                <button class="btn btn-secondary btn-nav" id="modalFwdBtn" onclick="goForward()" style="display: none;">Forward →</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Quiz Configuration -->
     <script>
         const QUIZ_DB_URL = "https://assets.quizhive.org/system-design.db";

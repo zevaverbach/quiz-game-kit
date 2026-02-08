@@ -9,7 +9,6 @@ start_button = "Begin Your Quest"
 logout_button = "Change Hero"
 play_again = "⚡ Play Again"
 db_file = "greek-mythology.db"
-repo_name = "greek-myth-quiz-game"
 s3_path = "greek-myths"
 
 [greek-myth.theme]
@@ -52,7 +51,6 @@ login_heading = "Welcome, Blader!"
 username_placeholder = "Your blader name..."
 start_button = "Let It Rip!"
 db_file = "beyblade-x.db"
-repo_name = "beyblade-x-quiz-game"
 s3_path = "beyblade"
 
 [beyblade-x.theme]
@@ -93,7 +91,6 @@ google_fonts = "Space+Grotesk:wght@400;700&family=Inter:wght@400;500"
 subtitle = "Master the art of building scalable systems"
 login_heading = "Welcome, Engineer"
 db_file = "system-design.db"
-repo_name = "system-design-quiz"
 s3_path = "system-design"
 
 [system-design.theme]

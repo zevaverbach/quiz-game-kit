@@ -1,0 +1,64 @@
+/**
+ * Example Theme File
+ *
+ * This file demonstrates how to customize the quiz appearance for your topic.
+ * Simply override the CSS variables defined in styles.css with your own colors.
+ *
+ * To use this theme:
+ * 1. Customize the colors below to match your quiz topic
+ * 2. Uncomment the theme.css link in index.html
+ *
+ * You can also override other styles here if needed.
+ */
+
+:root {
+    /* Example: Space Theme */
+    /* Uncomment and customize these colors */
+    /*
+    --gold: #ffd700;
+    --gold-light: #fff4b3;
+    --gold-dark: #cc9900;
+    --marble: #e8f4f8;
+    --navy: #0a0e27;
+    --purple: #2d1b4e;
+    --lightning: #00ccff;
+    --font-heading: 'Orbitron', sans-serif;
+    --font-body: 'Roboto', sans-serif;
+    */
+
+    /* Example: Nature Theme */
+    /* Uncomment and customize these colors */
+    /*
+    --gold: #76c893;
+    --gold-light: #b5e48c;
+    --gold-dark: #52b788;
+    --marble: #f8f9fa;
+    --navy: #1b4332;
+    --purple: #2d6a4f;
+    --lightning: #95d5b2;
+    */
+
+    /* Example: Fire/Lava Theme */
+    /* Uncomment and customize these colors */
+    /*
+    --gold: #ff6b35;
+    --gold-light: #ffaa00;
+    --gold-dark: #cc3300;
+    --marble: #fdf6e3;
+    --navy: #1a0000;
+    --purple: #4a1a1a;
+    --lightning: #ff9500;
+    */
+}
+
+/* Optional: Override specific styles */
+/*
+body {
+    background: linear-gradient(135deg, #your-color-1 0%, #your-color-2 50%, #your-color-1 100%);
+}
+
+.header h1 {
+    font-size: 3rem;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+*/
