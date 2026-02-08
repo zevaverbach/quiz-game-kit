@@ -210,6 +210,14 @@ Triggers confetti animation using canvas-confetti library.
 - `QUESTIONS_PER_GAME` (Number) - Questions per session (default: 20)
 - `DB_CACHE_MAX_AGE_MS` (Number) - Cache TTL in milliseconds (default: 90 days)
 - `QUIZ_DB_URL` (String) - URL to the SQLite .db file (set in index.html)
+- `QUIZ_THEME` (Object, optional) - Theme overrides with these properties:
+  - `storagePrefix` (String) - localStorage key prefix (default: `'quiz_game'`)
+  - `correctMessage` (String) - Message shown on correct answer
+  - `funFactLabel` (String) - Label before fun facts
+  - `confettiColors` (String[]) - Colors for confetti burst
+  - `confettiStreakColors` (String[]) - Colors for streak confetti
+  - `ranks` (Array<{min, label}>) - Completion ranks sorted high-to-low by `min` percentage
+- `theme` (Object) - Resolved theme config (merged QUIZ_THEME over defaults)
 
 ### State
 - `questions` (Array) - All questions loaded from the DB

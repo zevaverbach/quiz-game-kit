@@ -20,19 +20,21 @@ A modular, dependency-free quiz game framework that makes it easy to create enga
 
 ### Core Modules
 
-1. **`index.html`** - HTML structure + `QUIZ_DB_URL` configuration
+1. **`index.html`** - HTML structure, `QUIZ_DB_URL`, and `QUIZ_THEME` configuration
 2. **`styles.css`** - Core layout and styling with CSS variables
-3. **`quiz-engine.js`** - Game mechanics, DB loading, and logic
 
 ### Optional
 
-- **`theme.css`** - Custom theme overrides for your topic
+- **`theme.css`** - Custom CSS theme overrides for your topic
 
-### External
+### Shared (hosted on GitHub Pages)
 
-- **`.db` file** - SQLite database containing your questions, hosted separately (e.g. GitHub Pages)
+- **`quiz-engine.js`** - Game mechanics, DB loading, and logic — loaded from [quiz-data](https://github.com/zevaverbach/quiz-data)
+- **`.db` files** - SQLite databases containing your questions
 
-Questions are stored as SQLite databases and loaded at runtime via [sql.js](https://github.com/sql-js/sql.js/) (SQLite compiled to WASM). This decouples question content from the engine, so you can update questions without touching the quiz app, and multiple quizzes can share a single question database repo.
+Both the engine and question databases are hosted in a shared [quiz-data](https://github.com/zevaverbach/quiz-data) repo served via GitHub Pages. This means engine updates apply to all quizzes automatically, and questions are decoupled from the quiz app.
+
+Questions are loaded at runtime via [sql.js](https://github.com/sql-js/sql.js/) (SQLite compiled to WASM).
 
 ## Quick Start
 
@@ -42,8 +44,9 @@ Copy these files to your project:
 ```bash
 cp quiz-game-kit/index.html your-quiz/
 cp quiz-game-kit/styles.css your-quiz/
-cp quiz-game-kit/quiz-engine.js your-quiz/
 ```
+
+That's it — `quiz-engine.js` is loaded from a shared CDN URL, so you don't need a local copy.
 
 ### 2. Create Your Question Database
 
@@ -76,14 +79,31 @@ Host the `.db` file anywhere that serves static files. GitHub Pages works well:
 3. Enable GitHub Pages
 4. Your DB is served at `https://yourusername.github.io/quiz-data/your-quiz.db`
 
-### 4. Configure the URL
+### 4. Configure the URL and Theme
 
-Edit the `QUIZ_DB_URL` in `index.html`:
+Edit the configuration block in `index.html`:
 ```html
 <script>
     const QUIZ_DB_URL = "https://yourusername.github.io/quiz-data/your-quiz.db";
+    const QUIZ_THEME = {
+        storagePrefix: 'my_quiz',           // localStorage key prefix
+        correctMessage: '✨ Correct!',       // shown on correct answer
+        funFactLabel: '💡 Fun fact:',        // label before fun facts
+        confettiColors: ['#d4af37', '#f4e4a6', '#996515', '#ffffff'],
+        confettiStreakColors: ['#d4af37', '#f4e4a6', '#996515'],
+        ranks: [
+            { min: 100, label: '🏆 Perfect Round!' },
+            { min: 90,  label: '⚡ Champion' },
+            { min: 75,  label: '🦁 Hero' },
+            { min: 60,  label: '⚔️ Warrior' },
+            { min: 40,  label: '📚 Student' },
+            { min: 0,   label: '🌱 Beginner' },
+        ]
+    };
 </script>
 ```
+
+All `QUIZ_THEME` properties are optional — any you omit will use sensible defaults. You can also skip `QUIZ_THEME` entirely if the defaults work for you.
 
 ### 5. Customize the Text
 
@@ -177,9 +197,9 @@ See the **[System Design Quiz](https://github.com/zevaverbach/system-design-quiz
 The same quiz-game-kit can power multiple themed quizzes. Each quiz just needs:
 1. A `.db` file with topic-specific questions (hosted in your quiz-data repo)
 2. `QUIZ_DB_URL` set in `index.html`
-3. Custom `theme.css` with appropriate colors/fonts (optional)
-4. Updated text in `index.html`
-5. Shared `styles.css` and `quiz-engine.js` from the kit
+3. `QUIZ_THEME` with topic-appropriate messages, colors, and ranks (optional)
+4. Custom `theme.css` with appropriate CSS colors/fonts (optional)
+5. Updated text in `index.html`
 
 ## SQLite Schema Reference
 

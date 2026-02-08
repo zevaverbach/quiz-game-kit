@@ -7,10 +7,11 @@ This guide walks you through creating your own quiz game using the quiz-game-kit
 ### 1. Copy the Kit Files
 
 Copy these files to your project directory:
-- `index.html` - HTML structure and DB configuration
+- `index.html` - HTML structure, DB URL, and theme configuration
 - `styles.css` - Core styling
-- `quiz-engine.js` - Game logic and DB loading
-- `theme.css` (optional) - Theme customization
+- `theme.css` (optional) - CSS theme customization
+
+The game engine (`quiz-engine.js`) is loaded from a shared URL — no local copy needed.
 
 ### 2. Create Your Question Database
 
@@ -54,14 +55,32 @@ Host the `.db` file on any static file server. GitHub Pages is the easiest:
 
 Multiple quizzes can share the same data repo — just add more `.db` files.
 
-### 4. Configure the DB URL
+### 4. Configure the DB URL and Theme
 
-Edit the `QUIZ_DB_URL` in `index.html`:
+Edit the configuration block in `index.html`:
 ```html
 <script>
     const QUIZ_DB_URL = "https://yourusername.github.io/quiz-data/your-quiz.db";
+    // Optional: customize theme
+    const QUIZ_THEME = {
+        storagePrefix: 'my_quiz',           // localStorage key prefix (default: 'quiz_game')
+        correctMessage: '✨ Correct!',       // shown on correct answer
+        funFactLabel: '💡 Fun fact:',        // label before fun facts
+        confettiColors: ['#d4af37', '#f4e4a6', '#996515', '#ffffff'],
+        confettiStreakColors: ['#d4af37', '#f4e4a6', '#996515'],
+        ranks: [
+            { min: 100, label: '🏆 Perfect Round!' },
+            { min: 90,  label: '⚡ Champion' },
+            { min: 75,  label: '🦁 Hero' },
+            { min: 60,  label: '⚔️ Warrior' },
+            { min: 40,  label: '📚 Student' },
+            { min: 0,   label: '🌱 Beginner' },
+        ]
+    };
 </script>
 ```
+
+All `QUIZ_THEME` properties are optional — omit any to use defaults.
 
 ### 5. Customize the Text
 
@@ -101,15 +120,15 @@ Don't forget to:
 
 ```
 your-quiz-game/
-├── index.html          # HTML structure + QUIZ_DB_URL config
+├── index.html          # HTML structure + QUIZ_DB_URL + QUIZ_THEME config
 ├── styles.css          # Core styles
-├── quiz-engine.js      # Game logic + DB loading
-└── theme.css           # Your custom theme (optional)
+└── theme.css           # Your custom CSS theme (optional)
 ```
 
-Questions live in a separate repo:
+The engine and question databases live in a shared repo:
 ```
 quiz-data/              # Hosted on GitHub Pages
+├── quiz-engine.js      # Shared game engine (loaded by all quizzes)
 ├── your-quiz.db        # Your question database
 ├── another-quiz.db     # Another topic
 └── README.md
@@ -119,33 +138,20 @@ quiz-data/              # Hosted on GitHub Pages
 
 ### Questions Per Game
 
-By default, the quiz shows 20 questions per game session. To change this, edit `quiz-engine.js`:
-
-```javascript
-const QUESTIONS_PER_GAME = 20; // Change to your desired number
-```
+By default, the quiz shows 20 questions per game session. This is set in the shared `quiz-engine.js`.
 
 ### Cache Duration
 
-The DB is cached in IndexedDB for 90 days by default. To change this:
-
-```javascript
-const DB_CACHE_MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000; // Change 90 to desired days
-```
+The DB is cached in IndexedDB for 90 days by default. This is set in the shared `quiz-engine.js`.
 
 ### Storage Key
 
-The game uses localStorage with the key pattern `quiz_game_{username}`. To customize this (e.g., for multiple quizzes on the same domain), edit the storage functions in `quiz-engine.js`:
+The game uses localStorage with the key pattern `{storagePrefix}_{username}`. To customize this (e.g., for multiple quizzes on the same domain), set `storagePrefix` in `QUIZ_THEME`:
 
 ```javascript
-function getUserData(username) {
-    const data = localStorage.getItem(`your_quiz_name_${username}`);
-    // ...
-}
-
-function saveUserData(username, data) {
-    localStorage.setItem(`your_quiz_name_${username}`, JSON.stringify(data));
-}
+const QUIZ_THEME = {
+    storagePrefix: 'my_quiz_name',  // default: 'quiz_game'
+};
 ```
 
 ## Question Selection Algorithm
