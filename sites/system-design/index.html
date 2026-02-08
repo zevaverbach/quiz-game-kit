@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Game</title>
+    <title>System Design Quiz</title>
 
     <!-- External Dependencies (CDN) -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Spectral:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/sql-wasm.js"></script>
 
     <!-- Core Styles -->
     <link rel="stylesheet" href="https://zevaverbach.github.io/quiz-data/styles.css">
 
-    <!-- Optional: Custom Theme Override -->
-    <!-- <link rel="stylesheet" href="theme.css"> -->
+    <!-- Custom Theme Override -->
+    <link rel="stylesheet" href="theme.css">
+
+    <script src="https://t.averba.ch/snippet.js" defer></script>
 </head>
 <body>
     <!-- Background Animation -->
@@ -32,14 +34,14 @@
                 <div class="column"></div>
                 <div class="column"></div>
             </div>
-            <h1>Quiz Game</h1>
-            <p class="subtitle">Test your knowledge</p>
+            <h1>System Design Quiz</h1>
+            <p class="subtitle">Master the art of building scalable systems</p>
         </header>
 
         <!-- Login Screen -->
         <div class="screen active" id="loginScreen">
             <div class="login-card">
-                <h2>Welcome!</h2>
+                <h2>Welcome, Engineer</h2>
                 <div class="input-group">
                     <label for="username">Enter your name:</label>
                     <input type="text" id="username" placeholder="Your name..." maxlength="30" autocomplete="off">
@@ -125,23 +127,21 @@
 
     <!-- Quiz Configuration -->
     <script>
-        const QUIZ_DB_URL = "https://zevaverbach.github.io/quiz-data/sample-quiz.db";
-        // Optional: customize theme by defining QUIZ_THEME before the engine loads.
-        // const QUIZ_THEME = {
-        //     storagePrefix: 'my_quiz',
-        //     correctMessage: '✨ Correct!',
-        //     funFactLabel: '💡 Fun fact:',
-        //     confettiColors: ['#d4af37', '#f4e4a6', '#996515', '#ffffff'],
-        //     confettiStreakColors: ['#d4af37', '#f4e4a6', '#996515'],
-        //     ranks: [
-        //         { min: 100, label: '🏆 Perfect Round!' },
-        //         { min: 90,  label: '⚡ Champion' },
-        //         { min: 75,  label: '🦁 Hero' },
-        //         { min: 60,  label: '⚔️ Warrior' },
-        //         { min: 40,  label: '📚 Student' },
-        //         { min: 0,   label: '🌱 Beginner' },
-        //     ]
-        // };
+        const QUIZ_DB_URL = "https://zevaverbach.github.io/quiz-data/system-design.db";
+        const QUIZ_THEME = {
+            correctMessage: '✨ Correct! Well architected!',
+            funFactLabel: '💡 Fun fact:',
+            confettiColors: ['#00bcd4', '#b2ebf2', '#00838f', '#ffffff'],
+            confettiStreakColors: ['#00bcd4', '#b2ebf2', '#00e676'],
+            ranks: [
+                { min: 100, label: '🏗️ Distinguished Engineer - Perfect Round!' },
+                { min: 90,  label: '⚡ Principal Architect' },
+                { min: 75,  label: '🔧 Staff Engineer' },
+                { min: 60,  label: '💻 Senior Engineer' },
+                { min: 40,  label: '📚 Mid-Level Engineer' },
+                { min: 0,   label: '🌱 Junior Engineer' },
+            ]
+        };
     </script>
 
     <!-- Quiz Engine (shared) -->

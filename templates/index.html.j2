@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+
+    <!-- External Dependencies (CDN) -->
+    <link href="https://fonts.googleapis.com/css2?family={{ google_fonts }}&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/sql-wasm.js"></script>
+
+    <!-- Core Styles -->
+    <link rel="stylesheet" href="https://zevaverbach.github.io/quiz-data/styles.css">
+
+    <!-- {{ theme_css_comment }} -->
+    <link rel="stylesheet" href="theme.css">
+
+    <script src="https://t.averba.ch/snippet.js" defer></script>
+</head>
+<body>
+    <!-- Background Animation -->
+    <div class="bg-animation" id="bgAnimation"></div>
+
+    <!-- Streak Indicator -->
+    <div class="streak-indicator" id="streakIndicator">
+        🔥 <span id="streakCount">0</span> Streak!
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="columns">
+                <div class="column"></div>
+                <div class="column"></div>
+            </div>
+            <h1>{{ title }}</h1>
+            <p class="subtitle">{{ subtitle }}</p>
+        </header>
+
+        <!-- Login Screen -->
+        <div class="screen active" id="loginScreen">
+            <div class="login-card">
+                <h2>{{ login_heading }}</h2>
+                <div class="input-group">
+                    <label for="username">{{ username_label }}</label>
+                    <input type="text" id="username" placeholder="{{ username_placeholder }}" maxlength="30" autocomplete="off">
+                </div>
+                <div class="loading-indicator" id="loadingIndicator">
+                    <div class="loading-spinner"></div>
+                    <span>Loading questions...</span>
+                </div>
+                <button class="btn btn-primary" id="startBtn" onclick="startGame()" disabled>
+                    {{ start_button }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div class="screen" id="gameScreen">
+            <div class="user-greeting">
+                <span>Welcome, <strong id="displayName"></strong></span>
+                <button class="btn btn-secondary btn-small" onclick="logout()">{{ logout_button }}</button>
+            </div>
+
+            <div class="stats-bar">
+                <div class="stat">
+                    <div class="stat-value" id="scoreDisplay">0</div>
+                    <div class="stat-label">Score</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="answeredDisplay">0</div>
+                    <div class="stat-label">Answered</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="remainingDisplay">0</div>
+                    <div class="stat-label">Remaining</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="accuracyDisplay">0%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+
+            <div class="quiz-card" id="quizCard">
+                <span class="question-number" id="questionNumber">Question 1</span>
+                <p class="question-text" id="questionText"></p>
+                <div class="options" id="optionsContainer"></div>
+                <div id="resultContainer"></div>
+            </div>
+
+            <div class="nav-buttons" id="navButtons">
+                <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" style="display: none;">
+                    Next Question →
+                </button>
+            </div>
+        </div>
+
+        <!-- Completion Screen -->
+        <div class="screen" id="completionScreen">
+            <div class="completion-card">
+                <div class="trophy">🏆</div>
+                <h2>Round Complete!</h2>
+                <p>Well done, <strong id="completionName"></strong>!</p>
+                <div class="final-score" id="finalScore">0/0</div>
+                <p class="rank" id="rankDisplay"></p>
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="playAgain()">
+                        {{ play_again }}
+                    </button>
+                    <button class="btn btn-secondary" onclick="logout()">
+                        {{ logout_button }}
+                    </button>
+                </div>
+                <div style="margin-top: 15px;">
+                    <button class="btn btn-secondary btn-small" onclick="resetProgress()" style="opacity: 0.7;">
+                        Reset All Progress
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Configuration -->
+    <script>
+        const QUIZ_DB_URL = "https://zevaverbach.github.io/quiz-data/{{ db_file }}";
+{%- if theme %}
+        const QUIZ_THEME = {{ theme_js }};
+{%- endif %}
+    </script>
+
+    <!-- Quiz Engine (shared) -->
+    <script src="https://zevaverbach.github.io/quiz-data/quiz-engine.js"></script>
+</body>
+</html>
