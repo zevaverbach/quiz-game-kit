@@ -10,6 +10,7 @@ logout_button = "Change Hero"
 play_again = "⚡ Play Again"
 db_file = "greek-mythology.db"
 repo_name = "greek-myth-quiz-game"
+s3_path = "greek-myths"
 
 [greek-myth.theme]
 storagePrefix = "greek_myth_quiz"
@@ -52,6 +53,38 @@ username_placeholder = "Your blader name..."
 start_button = "Let It Rip!"
 db_file = "beyblade-x.db"
 repo_name = "beyblade-x-quiz-game"
+s3_path = "beyblade"
+
+[beyblade-x.theme]
+storagePrefix = "beyblade_x_quiz"
+correctMessage = "🌀 Correct! Critical hit!"
+funFactLabel = "🔩 Bey fact:"
+confettiColors = ["#ff4081", "#536dfe", "#ffab00", "#ffffff"]
+confettiStreakColors = ["#ff4081", "#536dfe", "#ffab00"]
+
+[[beyblade-x.theme.ranks]]
+min = 100
+label = "🏆 X Tower Champion - Perfect Round!"
+
+[[beyblade-x.theme.ranks]]
+min = 90
+label = "🌀 Xtreme Blader"
+
+[[beyblade-x.theme.ranks]]
+min = 75
+label = "⚔️ Beyblade Master"
+
+[[beyblade-x.theme.ranks]]
+min = 60
+label = "🔥 Rising Blader"
+
+[[beyblade-x.theme.ranks]]
+min = 40
+label = "🔩 Gear Tuner"
+
+[[beyblade-x.theme.ranks]]
+min = 0
+label = "🌱 Rookie Blader"
 
 
 [system-design]
@@ -61,6 +94,7 @@ subtitle = "Master the art of building scalable systems"
 login_heading = "Welcome, Engineer"
 db_file = "system-design.db"
 repo_name = "system-design-quiz"
+s3_path = "system-design"
 
 [system-design.theme]
 correctMessage = "✨ Correct! Well architected!"
@@ -70,24 +104,24 @@ confettiStreakColors = ["#00bcd4", "#b2ebf2", "#00e676"]
 
 [[system-design.theme.ranks]]
 min = 100
-label = "🏗️ Distinguished Engineer - Perfect Round!"
+label = "🏗️ Planet-Scale Architect - Perfect Round!"
 
 [[system-design.theme.ranks]]
 min = 90
-label = "⚡ Principal Architect"
+label = "⚡ Hyperscaler"
 
 [[system-design.theme.ranks]]
 min = 75
-label = "🔧 Staff Engineer"
+label = "🔧 Load Balancer"
 
 [[system-design.theme.ranks]]
 min = 60
-label = "💻 Senior Engineer"
+label = "💻 Capacity Planner"
 
 [[system-design.theme.ranks]]
 min = 40
-label = "📚 Mid-Level Engineer"
+label = "📚 Schema Designer"
 
 [[system-design.theme.ranks]]
 min = 0
-label = "🌱 Junior Engineer"
+label = "🌱 Monolith Maintainer"

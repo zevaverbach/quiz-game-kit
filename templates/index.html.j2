@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/sql-wasm.js"></script>
 
     <!-- Core Styles -->
-    <link rel="stylesheet" href="https://zevaverbach.github.io/quiz-data/styles.css">
+    <link rel="stylesheet" href="https://assets.quizhive.org/styles.css">
 
     <!-- {{ theme_css_comment }} -->
     <link rel="stylesheet" href="theme.css">
@@ -127,13 +127,13 @@
 
     <!-- Quiz Configuration -->
     <script>
-        const QUIZ_DB_URL = "https://zevaverbach.github.io/quiz-data/{{ db_file }}";
+        const QUIZ_DB_URL = "https://assets.quizhive.org/{{ db_file }}";
 {%- if theme %}
         const QUIZ_THEME = {{ theme_js }};
 {%- endif %}
     </script>
 
     <!-- Quiz Engine (shared) -->
-    <script src="https://zevaverbach.github.io/quiz-data/quiz-engine.js"></script>
+    <script src="https://assets.quizhive.org/quiz-engine.js"></script>
 </body>
 </html>

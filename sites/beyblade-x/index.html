@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/sql-wasm.js"></script>
 
     <!-- Core Styles -->
-    <link rel="stylesheet" href="https://zevaverbach.github.io/quiz-data/styles.css">
+    <link rel="stylesheet" href="https://assets.quizhive.org/styles.css">
 
     <!-- Optional: Custom Theme Override -->
     <link rel="stylesheet" href="theme.css">
@@ -127,10 +127,25 @@
 
     <!-- Quiz Configuration -->
     <script>
-        const QUIZ_DB_URL = "https://zevaverbach.github.io/quiz-data/beyblade-x.db";
+        const QUIZ_DB_URL = "https://assets.quizhive.org/beyblade-x.db";
+        const QUIZ_THEME = {
+            storagePrefix: 'beyblade_x_quiz',
+            correctMessage: '🌀 Correct! Critical hit!',
+            funFactLabel: '🔩 Bey fact:',
+            confettiColors: ['#ff4081', '#536dfe', '#ffab00', '#ffffff'],
+            confettiStreakColors: ['#ff4081', '#536dfe', '#ffab00'],
+            ranks: [
+                { min: 100, label: '🏆 X Tower Champion - Perfect Round!' },
+                { min: 90,  label: '🌀 Xtreme Blader' },
+                { min: 75,  label: '⚔️ Beyblade Master' },
+                { min: 60,  label: '🔥 Rising Blader' },
+                { min: 40,  label: '🔩 Gear Tuner' },
+                { min: 0,   label: '🌱 Rookie Blader' },
+            ]
+        };
     </script>
 
     <!-- Quiz Engine (shared) -->
-    <script src="https://zevaverbach.github.io/quiz-data/quiz-engine.js"></script>
+    <script src="https://assets.quizhive.org/quiz-engine.js"></script>
 </body>
 </html>
