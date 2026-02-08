@@ -8,6 +8,7 @@
     <!-- External Dependencies (CDN) -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Spectral:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/sql-wasm.js"></script>
 
     <!-- Core Styles -->
     <link rel="stylesheet" href="styles.css">
@@ -43,7 +44,11 @@
                     <label for="username">Enter your name:</label>
                     <input type="text" id="username" placeholder="Your name..." maxlength="30" autocomplete="off">
                 </div>
-                <button class="btn btn-primary" onclick="startGame()">
+                <div class="loading-indicator" id="loadingIndicator">
+                    <div class="loading-spinner"></div>
+                    <span>Loading questions...</span>
+                </div>
+                <button class="btn btn-primary" id="startBtn" onclick="startGame()" disabled>
                     Start Quiz
                 </button>
             </div>
@@ -118,8 +123,10 @@
         </div>
     </div>
 
-    <!-- Quiz Content -->
-    <script src="questions.js"></script>
+    <!-- Quiz DB Configuration -->
+    <script>
+        const QUIZ_DB_URL = "https://zevaverbach.github.io/quiz-data/sample-quiz.db";
+    </script>
 
     <!-- Quiz Engine -->
     <script src="quiz-engine.js"></script>

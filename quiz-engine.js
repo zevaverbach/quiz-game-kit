@@ -3,6 +3,7 @@
  *
  * This module contains all the game logic and mechanics for the quiz.
  * It handles:
+ * - Loading questions from a SQLite .db file via sql.js (WASM)
  * - Question selection and randomization
  * - User progress tracking via localStorage
  * - Score and streak calculations
@@ -10,17 +11,117 @@
  * - UI updates and animations
  *
  * Configuration:
+ * - QUIZ_DB_URL: URL to the SQLite .db file (set in index.html)
  * - QUESTIONS_PER_GAME: Number of questions per game session (default: 20)
  * - Storage key: quiz_game_{username} (can be customized)
  *
  * Dependencies:
- * - questions array (from questions.js)
+ * - sql.js (CDN)
  * - canvas-confetti library (CDN)
  * - HTML elements with specific IDs (see index.html)
  */
 
 // Configuration
 const QUESTIONS_PER_GAME = 20;
+const DB_CACHE_MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000; // 90 days
+
+// Questions array — populated async from SQLite DB
+let questions = [];
+
+// IndexedDB helpers for caching the .db file
+function openCacheDB() {
+    return new Promise((resolve, reject) => {
+        const req = indexedDB.open('quiz_db_cache', 1);
+        req.onupgradeneeded = () => req.result.createObjectStore('files');
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+    });
+}
+
+async function getCachedDB() {
+    const db = await openCacheDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction('files', 'readonly');
+        const req = tx.objectStore('files').get(QUIZ_DB_URL);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error);
+    });
+}
+
+async function setCachedDB(bytes) {
+    const db = await openCacheDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction('files', 'readwrite');
+        tx.objectStore('files').put({ bytes, cachedAt: Date.now() }, QUIZ_DB_URL);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+    });
+}
+
+// Parse a .db ArrayBuffer/Uint8Array into the questions array
+function parseDB(SQL, bytes) {
+    const db = new SQL.Database(new Uint8Array(bytes));
+    const results = db.exec("SELECT id, question, option_a, option_b, option_c, option_d, correct, fun_fact, wiki_url FROM questions ORDER BY id");
+
+    if (results.length > 0) {
+        questions = results[0].values.map(row => ({
+            question: row[1],
+            options: [row[2], row[3], row[4], row[5]],
+            correct: row[6],
+            funFact: row[7] || '',
+            wiki: row[8] || ''
+        }));
+    }
+
+    db.close();
+}
+
+// Load questions from SQLite database (with IndexedDB caching)
+async function initDatabase() {
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const startBtn = document.getElementById('startBtn');
+
+    try {
+        const SQL = await initSqlJs({
+            locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/${file}`
+        });
+
+        let cached = null;
+        try { cached = await getCachedDB(); } catch (e) { /* IndexedDB unavailable */ }
+
+        const isStale = !cached || (Date.now() - cached.cachedAt) > DB_CACHE_MAX_AGE_MS;
+
+        if (cached && !isStale) {
+            // Use cached copy
+            parseDB(SQL, cached.bytes);
+        } else {
+            // Fetch fresh copy (fall back to stale cache on network failure)
+            try {
+                const response = await fetch(QUIZ_DB_URL);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch database: ${response.status} ${response.statusText}`);
+                }
+
+                const buf = await response.arrayBuffer();
+                parseDB(SQL, buf);
+                try { await setCachedDB(buf); } catch (e) { /* cache write failed, non-fatal */ }
+            } catch (fetchErr) {
+                if (cached) {
+                    console.warn('Network fetch failed, using stale cached DB:', fetchErr);
+                    parseDB(SQL, cached.bytes);
+                } else {
+                    throw fetchErr;
+                }
+            }
+        }
+
+        loadingIndicator.style.display = 'none';
+        startBtn.disabled = false;
+    } catch (err) {
+        loadingIndicator.innerHTML = `<span style="color: #ef4444;">Failed to load questions. Check the DB URL.</span>`;
+        console.error('Database load error:', err);
+    }
+}
 
 // Game state variables
 let currentUser = null;
@@ -428,6 +529,7 @@ document.getElementById('username').addEventListener('keypress', function(e) {
 
 // Initialize
 createStars();
+initDatabase();
 
 // Restore remembered username
 const lastUser = localStorage.getItem('quiz_game_lastUser');
