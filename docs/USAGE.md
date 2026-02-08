@@ -1,44 +1,69 @@
 # Quiz Game Kit - Usage Guide
 
-This guide will walk you through creating your own quiz game using the quiz-game-kit.
+This guide walks you through creating your own quiz game using the quiz-game-kit.
 
 ## Quick Start
 
 ### 1. Copy the Kit Files
 
 Copy these files to your project directory:
-- `index.html` - HTML structure
+- `index.html` - HTML structure and DB configuration
 - `styles.css` - Core styling
-- `quiz-engine.js` - Game logic
-- `questions.js` - Question template
+- `quiz-engine.js` - Game logic and DB loading
 - `theme.css` (optional) - Theme customization
 
-### 2. Customize Your Questions
+### 2. Create Your Question Database
 
-Edit `questions.js` to add your quiz content:
+Questions are stored in a SQLite `.db` file with this schema:
 
-```javascript
-const questions = [
-    {
-        question: "Your question here?",
-        options: ["Option A", "Option B", "Option C", "Option D"],
-        correct: 2,  // Index of correct answer (0-3)
-        funFact: "Interesting fact about the answer",
-        wiki: "https://en.wikipedia.org/wiki/Related_Topic"
-    },
-    // Add more questions...
-];
+```sql
+CREATE TABLE questions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    question TEXT NOT NULL,
+    option_a TEXT NOT NULL,
+    option_b TEXT NOT NULL,
+    option_c TEXT NOT NULL,
+    option_d TEXT NOT NULL,
+    correct INTEGER NOT NULL CHECK(correct BETWEEN 0 AND 3),
+    fun_fact TEXT,
+    wiki_url TEXT
+);
 ```
 
+You can create `.db` files with:
+- **DB Browser for SQLite** (GUI) - [sqlitebrowser.org](https://sqlitebrowser.org)
+- **`sqlite3` CLI** - `sqlite3 my-quiz.db < schema.sql`
+- **An LLM** - Ask it to generate INSERT statements from your content
+
 **Requirements:**
-- Each question must have exactly 4 options
-- `correct` is the zero-based index (0-3) of the correct answer
-- `funFact` is shown after the user answers
-- `wiki` link is optional but recommended
+- Each question must have exactly 4 options (option_a through option_d)
+- `correct` is the zero-based index (0=option_a, 1=option_b, 2=option_c, 3=option_d)
+- `fun_fact` is shown after the user answers
+- `wiki_url` is optional but recommended
 
 **Recommended:** 50-200 questions for best experience. The engine selects 20 per game session.
 
-### 3. Customize the Text
+### 3. Host Your Database
+
+Host the `.db` file on any static file server. GitHub Pages is the easiest:
+
+1. Create a repo (e.g. `quiz-data`)
+2. Add your `.db` file(s)
+3. Enable GitHub Pages (Settings > Pages > Deploy from branch)
+4. Your DB is available at `https://yourusername.github.io/quiz-data/your-quiz.db`
+
+Multiple quizzes can share the same data repo — just add more `.db` files.
+
+### 4. Configure the DB URL
+
+Edit the `QUIZ_DB_URL` in `index.html`:
+```html
+<script>
+    const QUIZ_DB_URL = "https://yourusername.github.io/quiz-data/your-quiz.db";
+</script>
+```
+
+### 5. Customize the Text
 
 Edit `index.html` to customize:
 - `<title>` - Browser tab title
@@ -47,7 +72,7 @@ Edit `index.html` to customize:
 - Login screen text and labels
 - Button text
 
-### 4. Customize the Theme (Optional)
+### 6. Customize the Theme (Optional)
 
 Create or edit `theme.css` to override the default styling:
 
@@ -76,15 +101,18 @@ Don't forget to:
 
 ```
 your-quiz-game/
-├── index.html          # HTML structure (customize text)
-├── questions.js        # Your quiz content (required)
-├── theme.css          # Your custom theme (optional)
-├── quiz-game-kit/     # The reusable framework
-│   ├── styles.css     # Core styles (don't edit)
-│   ├── quiz-engine.js # Game logic (don't edit)
-│   ├── questions.js   # Template (replace with yours)
-│   └── theme.css      # Example themes
-└── README.md          # Your project documentation
+├── index.html          # HTML structure + QUIZ_DB_URL config
+├── styles.css          # Core styles
+├── quiz-engine.js      # Game logic + DB loading
+└── theme.css           # Your custom theme (optional)
+```
+
+Questions live in a separate repo:
+```
+quiz-data/              # Hosted on GitHub Pages
+├── your-quiz.db        # Your question database
+├── another-quiz.db     # Another topic
+└── README.md
 ```
 
 ## Configuration
@@ -95,6 +123,14 @@ By default, the quiz shows 20 questions per game session. To change this, edit `
 
 ```javascript
 const QUESTIONS_PER_GAME = 20; // Change to your desired number
+```
+
+### Cache Duration
+
+The DB is cached in IndexedDB for 90 days by default. To change this:
+
+```javascript
+const DB_CACHE_MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000; // Change 90 to desired days
 ```
 
 ### Storage Key
@@ -124,6 +160,14 @@ This ensures users see new content first and get extra practice on challenging m
 
 ## Features Explained
 
+### DB Loading and Caching
+
+- On first visit, the `.db` file is fetched from `QUIZ_DB_URL` and cached in IndexedDB
+- Subsequent visits load from IndexedDB with no network request
+- After 90 days, the cache is refreshed from the network
+- If a refresh fails (offline), the stale cache is used as fallback
+- The "Start Quiz" button is disabled until the DB is loaded
+
 ### Progress Tracking
 - User data is saved in localStorage by username
 - Tracks which questions have been seen
@@ -132,7 +176,7 @@ This ensures users see new content first and get extra practice on challenging m
 
 ### Streak System
 - Increments for consecutive correct answers
-- Displays with fire emoji (🔥) in top-right corner
+- Displays with fire emoji in top-right corner
 - Resets on incorrect answer
 - Persists during the current session only
 
@@ -200,10 +244,16 @@ This ensures users see new content first and get extra practice on challenging m
 
 ## Troubleshooting
 
-### Questions Not Showing
-- Check that `questions.js` is loaded before `quiz-engine.js`
-- Verify the `questions` array is properly formatted
-- Open browser console to check for JavaScript errors
+### "Failed to load questions" Error
+- Check that `QUIZ_DB_URL` points to a valid, publicly accessible `.db` file
+- Verify the hosting server allows CORS (GitHub Pages does by default)
+- Open the DB URL directly in a browser to confirm it downloads
+- Check the browser console for detailed error messages
+
+### Questions Not Loading
+- Verify the `.db` file uses the correct schema (table named `questions` with the expected columns)
+- Open the `.db` in a SQLite client and confirm data exists
+- Check that `correct` values are between 0 and 3
 
 ### Styles Not Applied
 - Ensure `styles.css` is loaded in the `<head>`
@@ -215,21 +265,10 @@ This ensures users see new content first and get extra practice on challenging m
 - Verify the username is being captured correctly
 - Check browser console for storage-related errors
 
+### Clearing the Cached DB
+- Open DevTools > Application > IndexedDB > `quiz_db_cache` > `files`
+- Delete the entry to force a fresh fetch on next load
+
 ## Examples
 
-See the [greek-myth-quiz-game](https://github.com/zevaverbach/greek-myth-quiz-game) repository for a complete working example.
-
-## Support
-
-For questions or issues:
-- Open an issue on GitHub
-- Check existing issues for solutions
-- Review the code comments in `quiz-engine.js`
-
-## Contributing
-
-Contributions are welcome! Please submit pull requests to improve:
-- Documentation
-- Quiz engine features
-- Bug fixes
-- Example themes
+See the [system-design-quiz](https://github.com/zevaverbach/system-design-quiz) repository for a complete working example.

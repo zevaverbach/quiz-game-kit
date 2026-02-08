@@ -4,7 +4,9 @@ This document describes the functions and data structures in the quiz-game-kit.
 
 ## Data Structures
 
-### Question Object
+### Question Object (in-memory)
+
+After loading from SQLite, each question is represented as:
 
 ```javascript
 {
@@ -14,6 +16,22 @@ This document describes the functions and data structures in the quiz-game-kit.
     funFact: String,      // Educational fact shown after answering
     wiki: String          // Optional Wikipedia URL for more info
 }
+```
+
+### SQLite Schema (on disk)
+
+```sql
+CREATE TABLE questions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    question TEXT NOT NULL,
+    option_a TEXT NOT NULL,
+    option_b TEXT NOT NULL,
+    option_c TEXT NOT NULL,
+    option_d TEXT NOT NULL,
+    correct INTEGER NOT NULL CHECK(correct BETWEEN 0 AND 3),
+    fun_fact TEXT,
+    wiki_url TEXT
+);
 ```
 
 ### User Stats Object
@@ -27,7 +45,53 @@ This document describes the functions and data structures in the quiz-game-kit.
 }
 ```
 
+### IndexedDB Cache Entry
+
+```javascript
+{
+    bytes: ArrayBuffer,   // Raw .db file bytes
+    cachedAt: Number      // Timestamp (Date.now()) when cached
+}
+```
+
 ## Core Functions
+
+### Database Loading
+
+#### `initDatabase()`
+Loads the question database from IndexedDB cache or network.
+
+**Actions:**
+1. Initializes sql.js WASM runtime
+2. Checks IndexedDB for a cached copy of the DB
+3. If cached and less than 90 days old, uses the cached copy
+4. Otherwise fetches from `QUIZ_DB_URL` and caches the result
+5. Falls back to stale cache if network fetch fails
+6. Parses the DB and populates the `questions` array
+7. Hides loading indicator and enables the Start button
+
+#### `openCacheDB()`
+Opens (or creates) the IndexedDB database used for caching.
+
+**Returns:** `Promise<IDBDatabase>`
+
+#### `getCachedDB()`
+Retrieves the cached DB entry for the current `QUIZ_DB_URL`.
+
+**Returns:** `Promise<{bytes, cachedAt} | null>`
+
+#### `setCachedDB(bytes)`
+Stores DB bytes in IndexedDB with a timestamp.
+
+**Parameters:**
+- `bytes` (ArrayBuffer) - The raw .db file content
+
+#### `parseDB(SQL, bytes)`
+Parses a SQLite database and populates the global `questions` array.
+
+**Parameters:**
+- `SQL` (sql.js module) - Initialized sql.js instance
+- `bytes` (ArrayBuffer) - Raw .db file content
 
 ### Question Selection
 
@@ -98,62 +162,25 @@ Handles answer selection and validation.
 #### `nextQuestion()`
 Advances to the next question or completion screen.
 
-**Actions:**
-1. Increments question index
-2. Either loads next question or shows completion
-3. Hides "Next" button until new question is answered
-
 #### `showCompletionScreen()`
 Displays the completion screen with final results.
-
-**Actions:**
-1. Calculates final score
-2. Determines rank based on performance
-3. Updates UI with results
-4. Fires victory confetti
 
 #### `playAgain()`
 Starts a new game session for the current user.
 
-**Actions:**
-1. Resets session variables
-2. Selects new session questions
-3. Returns to game screen
-
 #### `logout()`
-Returns to login screen.
-
-**Actions:**
-1. Resets all session data
-2. Clears username
-3. Shows login screen
+Returns to login screen and resets session state.
 
 #### `resetProgress()`
-Clears all saved progress for current user.
-
-**Actions:**
-1. Confirms with user (browser alert)
-2. Deletes localStorage data
-3. Reloads page
+Clears all saved progress for current user (with confirmation).
 
 ### UI Updates
 
 #### `updateStats()`
-Updates the statistics display bar.
-
-**Updates:**
-- Current score
-- Questions answered in session
-- Questions remaining in session
-- Accuracy percentage
+Updates the statistics display bar (score, answered, remaining, accuracy).
 
 #### `updateStreak()`
-Updates the streak indicator display.
-
-**Actions:**
-- Shows streak counter if streak > 0
-- Hides when streak is 0
-- Animates indicator
+Shows/hides the streak indicator based on current streak count.
 
 ### Utilities
 
@@ -174,27 +201,18 @@ Shows a screen and hides others.
 #### `createStars()`
 Generates animated background stars and lightning bolts.
 
-**Actions:**
-- Creates 100 twinkling stars
-- Creates 5 animated lightning bolts
-- Randomizes positions and timing
-
 #### `fireConfetti()`
 Triggers confetti animation using canvas-confetti library.
-
-**Parameters:** None
-
-**Actions:**
-- Fires confetti from bottom of screen
-- Uses multiple particle counts and spreads
-- Randomizes colors
 
 ## Global Variables
 
 ### Configuration
 - `QUESTIONS_PER_GAME` (Number) - Questions per session (default: 20)
+- `DB_CACHE_MAX_AGE_MS` (Number) - Cache TTL in milliseconds (default: 90 days)
+- `QUIZ_DB_URL` (String) - URL to the SQLite .db file (set in index.html)
 
 ### State
+- `questions` (Array) - All questions loaded from the DB
 - `currentUser` (String|null) - Current username
 - `currentQuestionIndex` (Number) - Current question index in session
 - `currentShuffledOptions` (Number[]) - Shuffled option indices
@@ -216,6 +234,8 @@ The quiz engine expects these HTML elements:
 
 ### Login
 - `username` - Username input field
+- `startBtn` - Start quiz button (disabled until DB loads)
+- `loadingIndicator` - Loading spinner (hidden after DB loads)
 
 ### Game
 - `displayName` - Username display
@@ -243,24 +263,23 @@ The quiz engine expects these HTML elements:
 ## Dependencies
 
 ### External (CDN)
+- **sql.js** (v1.11.0) - SQLite compiled to WASM for loading .db files
 - **canvas-confetti** (v1.9.2+) - Confetti animations
 - **Google Fonts** (optional) - Custom fonts
 
 ### Browser APIs
 - `localStorage` - User progress persistence
+- `IndexedDB` - DB file caching
+- `fetch` - DB file downloading
+- `WebAssembly` - Required by sql.js
 - DOM API - UI manipulation
 
 ## Browser Support
 
 Requires modern browser with support for:
-- ES6+ JavaScript (const, let, arrow functions, destructuring)
+- ES6+ JavaScript (const, let, arrow functions, async/await, destructuring)
 - CSS Custom Properties (variables)
 - CSS Flexbox
 - localStorage API
-- Modern DOM APIs
-
-Tested on:
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
+- IndexedDB API
+- WebAssembly
