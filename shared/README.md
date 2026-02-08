@@ -1,6 +1,6 @@
-# Quiz Data
+# Shared Assets
 
-SQLite database files for use with [quiz-game-kit](https://github.com/zevaverbach/quiz-game-kit).
+Shared quiz engine, styles, and SQLite question databases. Deployed to `s3://assets.quizhive.org/`.
 
 ## Schema
 
@@ -26,14 +26,6 @@ CREATE TABLE questions (
 | `system-design.db` | 200 | System design interview prep |
 | `beyblade-x.db` | 100 | Beyblade X trivia |
 | `greek-mythology.db` | 722 | Greek mythology trivia |
-
-## Usage
-
-Set `QUIZ_DB_URL` in your quiz's `index.html` to point at the hosted `.db` file:
-
-```js
-const QUIZ_DB_URL = "https://zevaverbach.github.io/quiz-data/system-design.db";
-```
 
 ## Creating New Databases
 

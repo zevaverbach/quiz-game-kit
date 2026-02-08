@@ -1,19 +1,10 @@
 # Quiz Game Kit - Usage Guide
 
-This guide walks you through creating your own quiz game using the quiz-game-kit.
+This guide walks you through creating your own quiz game using quiz-game-kit.
 
 ## Quick Start
 
-### 1. Copy the Kit Files
-
-Copy these files to your project directory:
-- `index.html` - HTML structure, DB URL, and theme configuration
-- `styles.css` - Core styling
-- `theme.css` (optional) - CSS theme customization
-
-The game engine (`quiz-engine.js`) is loaded from a shared URL — no local copy needed.
-
-### 2. Create Your Question Database
+### 1. Create Your Question Database
 
 Questions are stored in a SQLite `.db` file with this schema:
 
@@ -44,56 +35,42 @@ You can create `.db` files with:
 
 **Recommended:** 50-200 questions for best experience. The engine selects 20 per game session.
 
-### 3. Host Your Database
+### 2. Add the Database to `shared/`
 
-Host the `.db` file on any static file server. GitHub Pages is the easiest:
+Place your `.db` file in the `shared/` directory. It will be deployed to `s3://assets.quizhive.org/` automatically when you run `python3 deploy.py`.
 
-1. Create a repo (e.g. `quiz-data`)
-2. Add your `.db` file(s)
-3. Enable GitHub Pages (Settings > Pages > Deploy from branch)
-4. Your DB is available at `https://yourusername.github.io/quiz-data/your-quiz.db`
+### 3. Configure the Quiz in `quizzes.toml`
 
-Multiple quizzes can share the same data repo — just add more `.db` files.
+Add a new section for your quiz:
 
-### 4. Configure the DB URL and Theme
+```toml
+[my-quiz]
+title = "My Quiz"
+subtitle = "Test your knowledge"
+db_file = "my-quiz.db"
+s3_path = "my-quiz"
 
-Edit the configuration block in `index.html`:
-```html
-<script>
-    const QUIZ_DB_URL = "https://yourusername.github.io/quiz-data/your-quiz.db";
-    // Optional: customize theme
-    const QUIZ_THEME = {
-        storagePrefix: 'my_quiz',           // localStorage key prefix (default: 'quiz_game')
-        correctMessage: '✨ Correct!',       // shown on correct answer
-        funFactLabel: '💡 Fun fact:',        // label before fun facts
-        confettiColors: ['#d4af37', '#f4e4a6', '#996515', '#ffffff'],
-        confettiStreakColors: ['#d4af37', '#f4e4a6', '#996515'],
-        ranks: [
-            { min: 100, label: '🏆 Perfect Round!' },
-            { min: 90,  label: '⚡ Champion' },
-            { min: 75,  label: '🦁 Hero' },
-            { min: 60,  label: '⚔️ Warrior' },
-            { min: 40,  label: '📚 Student' },
-            { min: 0,   label: '🌱 Beginner' },
-        ]
-    };
-</script>
+[my-quiz.theme]
+storagePrefix = "my_quiz"
+correctMessage = "Correct!"
+funFactLabel = "Fun fact:"
+confettiColors = ["#d4af37", "#f4e4a6", "#996515", "#ffffff"]
+confettiStreakColors = ["#d4af37", "#f4e4a6", "#996515"]
+
+[[my-quiz.theme.ranks]]
+min = 100
+label = "Perfect!"
+
+[[my-quiz.theme.ranks]]
+min = 0
+label = "Keep trying!"
 ```
 
-All `QUIZ_THEME` properties are optional — omit any to use defaults.
+All theme properties are optional — omit any to use defaults.
 
-### 5. Customize the Text
+### 4. Create a Theme (Optional)
 
-Edit `index.html` to customize:
-- `<title>` - Browser tab title
-- `<h1>` - Main header
-- `<p class="subtitle">` - Tagline
-- Login screen text and labels
-- Button text
-
-### 6. Customize the Theme (Optional)
-
-Create or edit `theme.css` to override the default styling:
+Create `sites/my-quiz/theme.css` to override the default styling:
 
 ```css
 :root {
@@ -112,46 +89,52 @@ Create or edit `theme.css` to override the default styling:
 }
 ```
 
-Don't forget to:
-1. Uncomment the theme.css link in `index.html`
-2. Add your custom font imports to the `<head>` if needed
+### 5. Render and Deploy
+
+```bash
+python3 render_all.py   # Generate sites/<prefix>/index.html for all quizzes
+python3 deploy.py       # Upload everything to S3
+```
 
 ## Project Structure
 
 ```
-your-quiz-game/
-├── index.html          # HTML structure + QUIZ_DB_URL + QUIZ_THEME config
-├── styles.css          # Core styles
-└── theme.css           # Your custom CSS theme (optional)
-```
-
-The engine and question databases live in a shared repo:
-```
-quiz-data/              # Hosted on GitHub Pages
-├── quiz-engine.js      # Shared game engine (loaded by all quizzes)
-├── your-quiz.db        # Your question database
-├── another-quiz.db     # Another topic
-└── README.md
+quiz-game-kit/
+├── quizzes.toml          # Quiz configuration
+├── render.py             # Render a single quiz
+├── render_all.py         # Render all quizzes
+├── deploy.py             # Deploy to S3
+├── templates/
+│   └── index.html.j2     # Jinja2 template
+├── home/
+│   └── index.html        # Landing page
+├── shared/               # Shared assets (→ assets.quizhive.org)
+│   ├── quiz-engine.js
+│   ├── styles.css
+│   └── *.db
+└── sites/                # Per-quiz files (→ quizhive.org/<s3_path>/)
+    └── <prefix>/
+        ├── index.html    # Generated
+        └── theme.css     # Custom theme
 ```
 
 ## Configuration
 
 ### Questions Per Game
 
-By default, the quiz shows 20 questions per game session. This is set in the shared `quiz-engine.js`.
+By default, the quiz shows 20 questions per game session. This is set in `shared/quiz-engine.js`.
 
 ### Cache Duration
 
-The DB is cached in IndexedDB for 90 days by default. This is set in the shared `quiz-engine.js`.
+The DB is cached in IndexedDB for 90 days by default. This is set in `shared/quiz-engine.js`.
 
 ### Storage Key
 
-The game uses localStorage with the key pattern `{storagePrefix}_{username}`. To customize this (e.g., for multiple quizzes on the same domain), set `storagePrefix` in `QUIZ_THEME`:
+The game uses localStorage with the key pattern `{storagePrefix}_{username}`. To customize this (e.g., for multiple quizzes on the same domain), set `storagePrefix` in the theme config in `quizzes.toml`:
 
-```javascript
-const QUIZ_THEME = {
-    storagePrefix: 'my_quiz_name',  // default: 'quiz_game'
-};
+```toml
+[my-quiz.theme]
+storagePrefix = "my_quiz_name"
 ```
 
 ## Question Selection Algorithm
@@ -168,7 +151,7 @@ This ensures users see new content first and get extra practice on challenging m
 
 ### DB Loading and Caching
 
-- On first visit, the `.db` file is fetched from `QUIZ_DB_URL` and cached in IndexedDB
+- On first visit, the `.db` file is fetched from `assets.quizhive.org` and cached in IndexedDB
 - Subsequent visits load from IndexedDB with no network request
 - After 90 days, the cache is refreshed from the network
 - If a refresh fails (offline), the stale cache is used as fallback
@@ -251,9 +234,8 @@ This ensures users see new content first and get extra practice on challenging m
 ## Troubleshooting
 
 ### "Failed to load questions" Error
-- Check that `QUIZ_DB_URL` points to a valid, publicly accessible `.db` file
-- Verify the hosting server allows CORS (GitHub Pages does by default)
-- Open the DB URL directly in a browser to confirm it downloads
+- Check that the `.db` file exists in `shared/` and has been deployed
+- Verify the `db_file` field in `quizzes.toml` matches the filename in `shared/`
 - Check the browser console for detailed error messages
 
 ### Questions Not Loading
@@ -262,9 +244,8 @@ This ensures users see new content first and get extra practice on challenging m
 - Check that `correct` values are between 0 and 3
 
 ### Styles Not Applied
-- Ensure `styles.css` is loaded in the `<head>`
-- Check that CSS file paths are correct
-- If using custom theme, ensure it's loaded after `styles.css`
+- Ensure the template is rendering correctly (`python3 render_all.py`)
+- If using custom theme, ensure `theme.css` exists in `sites/<prefix>/`
 
 ### Progress Not Saving
 - Check that localStorage is enabled in the browser
@@ -274,7 +255,3 @@ This ensures users see new content first and get extra practice on challenging m
 ### Clearing the Cached DB
 - Open DevTools > Application > IndexedDB > `quiz_db_cache` > `files`
 - Delete the entry to force a fresh fetch on next load
-
-## Examples
-
-See the [system-design-quiz](https://github.com/zevaverbach/system-design-quiz) repository for a complete working example.
