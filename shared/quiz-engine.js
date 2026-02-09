@@ -44,6 +44,14 @@ const DB_CACHE_MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000; // 90 days
 // Questions array — populated async from SQLite DB
 let questions = [];
 
+// Timeout wrapper — resolves to rejection if promise doesn't settle in time
+function withTimeout(promise, ms) {
+    return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
+    ]);
+}
+
 // IndexedDB helpers for caching the .db file
 function openCacheDB() {
     return new Promise((resolve, reject) => {
@@ -103,7 +111,7 @@ async function initDatabase() {
         });
 
         let cached = null;
-        try { cached = await getCachedDB(); } catch (e) { /* IndexedDB unavailable */ }
+        try { cached = await withTimeout(getCachedDB(), 2000); } catch (e) { /* IndexedDB unavailable or slow */ }
 
         const isStale = !cached || (Date.now() - cached.cachedAt) > DB_CACHE_MAX_AGE_MS;
 
@@ -120,7 +128,7 @@ async function initDatabase() {
 
                 const buf = await response.arrayBuffer();
                 parseDB(SQL, buf);
-                try { await setCachedDB(buf); } catch (e) { /* cache write failed, non-fatal */ }
+                try { await withTimeout(setCachedDB(buf), 2000); } catch (e) { /* cache write failed, non-fatal */ }
             } catch (fetchErr) {
                 if (cached) {
                     console.warn('Network fetch failed, using stale cached DB:', fetchErr);
